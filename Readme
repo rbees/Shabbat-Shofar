@@ -1,0 +1,27 @@
+This script is suppose to use hdate to calculate the start time of Shabbat and play a Shofar blast 20 min before.  It also will stop mpg123 from playing the radio streem and restart it after.
+
+At this point it is prety simple and has longitude, latitude and time zone hard coded.  Would perfer this to be set in a config file.
+
+Requires:  libhdate 1.4.20-4, at, sed. mpg123, amixer, espeak
+
+The things I want it to do that fall outside of my skill set.
+
+1 Calculate Jewish Holidays and play suitable audio files specific to the Holiday.
+
+2 Display and / or play the Torah readings (I have the entire Tanach {Hebrew Bible} in Hebrew, in public domain audio files, for the Holidays and weekly readings.
+
+3 Calculate daily prayer times and display and/or suitable audio file.
+
+4 Play suitable audio file for the start of services on Shabbat.
+
+5 Include features to interface with home automation to turn lights off and on.
+
+6 Control Hanukkah lights via home automation ( add one light per day for the 8 days)
+
+7 Calculate new month
+
+8 Count Omer
+
+9 Display and / or play the Daf Yomi readings (readings are available at ou.org)
+
+

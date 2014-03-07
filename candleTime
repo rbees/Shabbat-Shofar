@@ -1,0 +1,148 @@
+#!/bin/bash 
+#set -x
+
+############################################################################
+# Script to play a Shofar blast for the start of Shabbat among other things
+#
+# Depends:	libhdate 1.4.20-4
+#		at, sed. mpg123, aumix
+#
+#
+#
+
+
+
+##### Constants
+
+lat=41.7381	#44.786 l
+long=-85.9588	#85.042 L  @#$@#$ changes from a + number to - number with hdate 1.4.20-4
+tz="$( date +%-:z )"
+day=()
+month=()
+year=()
+Day=()
+havdalah=()
+
+##### Functions
+
+function Long
+{
+  # longitude for Kalkaska, MI.  At some point we will make this interactive or set through a config file.  -L
+  -85.042
+}
+
+function Lat
+{
+  # latitude for Kalkaska, MI.  At some point we will make this interactive or set through a config file.  -l
+  44.786
+}
+
+function Tz
+{
+  # time zone for Kalkaska, MI.  At some point we will make this interactive or set through a config file.
+  -5
+}
+
+function Day_of_week #set the day of the week
+{
+Day="$( date +%a )"
+     if [[ "$Day" != "Fri" ]]; then
+          Day="$( date -d "next fri" +%a )"
+     fi
+}
+
+function Set_date
+{
+#set -x
+  # Get the current date and set the the variabls day, month, year.
+read day month year <<<"$( date +"%d %m %Y" )"
+  if [[ "Fri" == "$( date +%a )" ]]; then
+    Day=Fri
+    return
+  else
+    read day month year <<<"$( date +"%d %m %Y" -d "next Fri" )"
+    Day=Fri
+  fi
+}
+
+function Set_shabbat
+{
+day="$(date -d "next sat" +%d)"
+}
+
+function Torah_reading {
+Set_shabbat
+parsha="$(hdate -r $day $month $year)"
+
+echo "The Parsha for "$parsha""
+}
+
+  function Havdalah
+{
+  havdalah="$(hdate -c -L$long -l$lat -z$tz $day $month $year)"
+  echo "Havdalah time for; "$havdalah""
+  hTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | awk -F"havdalah:" '{printf("%s\n",$2)}')"
+  at "$hTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/havdalah
+}
+
+function Candle_time
+{
+  Time="$(hdate -c -L$long -l$lat -z$tz $day $month $year)"
+  echo "Candle lighting time for; "$Time""
+}
+
+function Shofar
+{
+Day_of_week
+# need to make a test to see if the shofar blast is already set.
+# need to pause or cancel any other sound apps before the shofar and then restart them after.
+# need to seperate shofar from being Shabbat speciffic
+#cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed 's/[()]//g')"
+cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | awk -F"lighting:" '{printf("%s\n",$2)}')"
+at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
+}
+
+function Yom_tove
+{
+# test date for Yom Tove
+1
+}
+
+function Yom_tove_reading
+{
+# need to build a table to list Yom Tove readings
+2
+}
+
+function Rosh_chodesh
+{
+# test date for Rosh Chodesh
+3
+}
+
+function Count_omer
+{
+# count the Omer
+4
+}
+
+function Radio
+{
+rTime="$(hdate - )"	 # need to determine what is the best time to start the radio.
+mpg123 http://216.118.106.247:7000
+}
+
+
+###### Main
+clear
+#Day_of_week
+Set_date
+  if [ "$Day" == "Fri" ]; then 
+    Candle_time
+    Shofar
+    Torah_reading
+  fi
+Havdalah
+#Radio
+
+

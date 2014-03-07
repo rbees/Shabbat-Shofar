@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# sound card control
+vol=()
+
+# get current 'line in' volume
+amixer scontents > vol_data
+cat -n vol_data | grep 6 > vol_data_1
+
+amixer scontents | grep Simple > vol_data
+
+amixer set Line,0 5%,5% mute captur
+
+# use `grep -o` to select only the pattern matched rather than the whole line:  grep -o 'GET [^ ]\+ ' /var/log/httpd_access.log | sort | uniq -c | sort -n | head -n 100 > top100
+
+#Add the following sed commands to cal to get a calendar with the current date marked: cal | sed "s/^/ /;s/$/ /;s/ $(date +%e) / $(date +%e | sed 's/./#/g') /"
+
+#How to print some lines from a file. To print only the 3rd line: 
+#sed -n 3p file
+#To print lines from 3 through 7: 
+#sed -n 3,7p file
+
+#Splitting arguments with read. The 'read' command can be used to split arguments based on any arbitrary character using IFS: 
+
+#$ echo 'a/bc/ de fg hi/j' | { IFS='/' read first second others; echo "$first"; echo "$second"; echo "$others"; }
+#a
+#bc
+# de fg hi/j
+
+# Read a file line-by-line.  This short script reads a file line-by-line ( whith whitespace characters too ) and outputs to STDOUT. 
+
+#!/bin/bash
+#FILE='/path/to/filename'
+#for linecount in `seq $(cat $FILE | wc -l)`; do
+#line=`head -n$linecount $FILE | tail -1`
+#echo $line
+#done
+
