@@ -17,31 +17,39 @@
 lat=44.786	#44.786 l
 long=-85.042	#85.042 L  @#$@#$ changes from a + number to - number with hdate 1.4.20-4
 tz="$( date +%:::z )"
-day=()
+day=()  # should be the numerical value of the day
 month=()
 year=()
-Day=()
+Day=()  # should be the abreviated name of the day as in Mon
 havdalah=()
 
 ##### Functions
 
-function Long
-{
-  # longitude for Kalkaska, MI.  At some point we will make this interactive or set through a config file.  -L
-  -85.042
-}
+# Not currently used and maybe this one and the next should be combined into a single function
 
-function Lat
-{
-  # latitude for Kalkaska, MI.  At some point we will make this interactive or set through a config file.  -l
-  44.786
-}
+#function Long
+#{
+  # longitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  -L
+#  -85.042
+#}
 
-function Tz
-{
-  # time zone for Kalkaska, MI.  At some point we will make this interactive or set through a config file.
-  -5
-}
+# Not currently used
+
+#function Lat
+#{
+  # latitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  -l
+#  44.786
+#}
+
+# Not currently used
+
+#function Tz
+#{
+  # time zone for Kalkaska, MI.  At some point we will make this interactive using the gps cordinnates to determine what the time should be or set through a config file.
+#  -5
+#}
+
+# pretty sure this is a useless function
 
 function Day_of_week #set the day of the week
 {
@@ -53,12 +61,11 @@ Day="$( date +%a )"
 
 function Set_date
 {
-  # Get the current date and set the the variabls day, month, year.
-read day month year <<<"$( date +"%d %m %Y" )"
-  if [[ "Fri" == "$( date +%a )" ]]; then
-    Day=Fri
-    return
-  else
+  # Get the current date and set the the variables day, month, year.
+read Day day month year <<<"$( date +"%a %d %m %Y" )"
+#echo "$Day"
+#exit
+  if [[ "Fri" != "$Day" ]]; then
     read day month year <<<"$( date +"%d %m %Y" -d "next Fri" )"
     Day=Fri
   fi
@@ -66,12 +73,17 @@ read day month year <<<"$( date +"%d %m %Y" )"
 
 function Set_shabbat
 {
+
+# Will need to be made aware that hdate has been made sundown aware
+
 day="$(date -d "next sat" +%d)"
 }
 
 function Torah_reading {
 Set_shabbat
 parsha="$(hdate -r $day $month $year)"
+
+# Add an audio section to play a recording of the actual reading at a specific time (to be determined) on Shabbat.
 
 echo "The Parsha for "$parsha""
 }
@@ -90,48 +102,66 @@ function Candle_time
 
 function Shofar
 {
-Day_of_week
+
+#Day_of_week # not sure why I had this in here it's not used.
+
 # need to make a test to see if the shofar blast is already set.
 # need to pause or cancel any other sound apps before the shofar and then restart them after.
-# need to seperate shofar from being Shabbat speciffic
+# need to determine the proper combination of the three different shofar blasts to use when called.
+# Will probably require a table/list.
+# need to separate shofar from being Shabbat specific
+
 cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed 's/[()]//g')"
 at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 }
 
-function Yom_tove
-{
-# test date for Yom Tove
-1
-}
+# Not currently used
 
-function Yom_tove_reading
-{
-# need to build a table to list Yom Tove readings
-2
-}
+#function Yom_tove 	# Festival
+#{
+## test date for Yom Tove
+#
+#}
 
-function Rosh_chodesh
-{
-# test date for Rosh Chodesh
-3
-}
+# Not currently used
 
-function Count_omer
-{
-# count the Omer
-4
-}
+#function Yom_tove_reading
+#{
+## need to build a table/list of Yom Tove readings
+#
+#}
 
-function Radio
-{
-rTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed 's/[()]//g')"	 # need to determine what is the best time to start the radio.
-mpg123 http://216.118.106.247:7000
-}
+# Not currently used
+
+#function Rosh_chodesh		# New Moon
+#{
+## test date for Rosh Chodesh
+#
+#}
+
+# Not currently used
+
+#function Count_omer	# count fifty days between Passover and Shavuot
+#{
+## count the Omer 
+# must count both seven weeks and fifty days so there are actually two countings.
+# play reminder to count the Omer morning & evening
+# play an audio file containing the blessing and the actual count
+#}
+
+# Not currently used
+
+#function Radio
+#{
+#rTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed #'s/[()]//g')"
+
+# need to determine what is the best time to start the radio.
+#mpg123 http://216.118.106.247:7000
+#}
 
 
 ###### Main
 clear
-#Day_of_week
 Set_date
   if [ "$Day" == "Fri" ]; then 
     Candle_time
