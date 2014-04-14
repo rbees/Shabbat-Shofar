@@ -7,11 +7,9 @@ amixer set Master 90%
 
 mpg123 $HOME/bin/shabbat/music/Sound_Of_Shofar.mp3                                                                                                     
 sleep 3
-espeak -s115 "It's time for my lovely wife Robin to light the Shabbat candles.  
+espeak -s115 "It's time for my lovely wife to light the Shabbat candles.  
 Barook 'a ta HaShem Ellohaynew meleck hah 'oh'lam.  
 Asher kiddashanu bee mitz vo tav vitzivanu la had leckner shell shabbat."
-
-#espeak -s115 "Did she notice that I finally got around to changing this script some?"
 
 amixer set Master 70%
 #aumix -v 70                                                                                                                                   

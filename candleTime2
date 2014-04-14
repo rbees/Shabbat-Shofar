@@ -5,11 +5,19 @@
 # Script to play a Shofar blast for the start of Shabbat among other things
 #
 # Depends:	libhdate 1.4.20-4
-#		at, sed. mpg123, aumix
+#		at, sed. mpg123, amixer, espeak
 #
-#  See Shabbat 35b for shofar blast times and types
+#  See the Talmud in Shabbat 35b for shofar blast times and types, below is a quick over view.
+# The Gemara in Masechet Shabbat (35b) describes a custom that was observed each week before Shabbat in Jewish communities during Talmudic times. 
+# A person would climb onto the rooftop of a tall building in the town and blow six Shofar blasts. 
+# Specifically, he would twice blow the series of Teki’a-Teru’a-Teki’a. The Gemara explains the significance of each Shofar blast. 
+# The first, for example, served as a warning to the farmers working in the fields outside the city that they must put down their tools and start making their way back home to prepare for Shabbat. 
+# The second Shofar blast alerted the shopkeepers in the city that the time has come to close their stores, and the third indicated the time to light the Shabbat candles. The final Shofar blasts indicated the onset of Shabbat. 
+# The person blowing the Shofar would then put down the Shofar and come down from the rooftop, as Shabbat begun.
 #
 
+
+# We need to setup the working path.  Some of the file paths are hard coded.
 
 
 ##### Constants
@@ -29,7 +37,7 @@ havdalah=()
 
 #function Long
 #{
-  # longitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  -L
+  # longitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  (-L switch for hdate)
 #  -85.042
 #}
 
@@ -37,7 +45,7 @@ havdalah=()
 
 #function Lat
 #{
-  # latitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  -l
+  # latitude for Kalkaska, MI.  At some point we will make this interactive to pull the gps cordinates off a website per your current address, or set through a config file.  (-l switch for hdate)
 #  44.786
 #}
 
@@ -49,7 +57,7 @@ havdalah=()
 #  -5
 #}
 
-# pretty sure this is a useless function
+# pretty sure this is a useless function. Not sure why I have it, but I do know there was a reason at the time.  May have something to do with hdate not being sundown aware when this was first writen.
 
 function Day_of_week #set the day of the week
 {
@@ -92,6 +100,8 @@ echo "The Parsha for "$parsha""
 {
   havdalah="$(hdate -c -L$long -l$lat -z$tz $day $month $year)"
   echo "Havdalah time for; "$havdalah""
+  hTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | awk -F"havdalah:" '{printf("%s\n",$2)}')"
+  at "$hTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/havdalah
 }
 
 function Candle_time
@@ -103,16 +113,21 @@ function Candle_time
 function Shofar
 {
 
-#Day_of_week # not sure why I had this in here it's not used.
+#Day_of_week # not sure why I had this in here it's not used.	
 
-# need to make a test to see if the shofar blast is already set.
-# need to pause or cancel any other sound apps before the shofar and then restart them after.
-# need to determine the proper combination of the three different shofar blasts to use when called.
+# We need to make a test to see if the shofar blast is already set.
+# We need to pause or cancel any other sound apps before the shofar and then restart them after.
+# We need to determine the proper combination of the three different shofar blasts to use when called.
 # Will probably require a table/list.
-# need to separate shofar from being Shabbat specific
+# We need to separate shofar from being Shabbat specific
 
 cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed 's/[()]//g')"
 at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
+
+# working from candleTime
+#cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | awk -F"lighting:" '{printf("%s\n",$2)}')"
+#at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
+
 }
 
 # Not currently used
@@ -120,7 +135,12 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 #function Yom_tove 	# Festival
 #{
 ## test date for Yom Tove
-#
+# hdate -h -L$long -l$lat -z$tz $day $month $year
+# if it is a Yom Tove hdate does not give candle lighting times so we have to generate them ourselves.
+# chech for sundown and set candle lighting and havdalah times
+#hdate -s -l44.786543 -L-85.040193 14 04 2015
+#  then subtract 20 min from sunset and set as candle lighting time
+#  then add 40 min to sunset and set as havdalah
 #}
 
 # Not currently used
@@ -136,7 +156,16 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 #function Rosh_chodesh		# New Moon
 #{
 ## test date for Rosh Chodesh
-#
+# something like
+# hdate -L$long -l$lat -z$tz $day $month $year
+#	then check if the hebrew day is 29
+#		if yes then add 1 to $day and check again.
+#		if hebrew day is 1 
+#			then it is Rosh Chodesh and we do thingys
+#		else add 1 to $day and check again
+#		if hebrew day is 1 
+#			then it is Rosh Chodesh and we do thingys
+#			else error
 #}
 
 # Not currently used
@@ -144,19 +173,57 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 #function Count_omer	# count fifty days between Passover and Shavuot
 #{
 ## count the Omer 
-# must count both seven weeks and fifty days so there are actually two countings.
+# We must count both seven weeks and fifty days so there are actually two countings. (50th day is Shavuot)
 # play reminder to count the Omer morning & evening
 # play an audio file containing the blessing and the actual count
+
+# something like
+# is `hdate -L$long -l$lat -z$tz $day $month $year` between 16 Nisan and 5 Sivan (49 days)
+# then hdate -o -L$long -l$lat -z$tz $day $month $year
+#	and do thingys specific to count.
+#		like "today is the 13th day of the Omer which makes 1 week and 6 days of the Omer.  Blessed are you HaShem our G0d King of the universe who has commaneded us to count the Omer"
+#}
+
+# Not currently used
+
+#function Daf-yomi
+#{
+# Daily page a day Talmud reading 7 year cycle.
+# We prablably want to anounce what the reading is first
+# then play an audio recording of the tractate.
+# audio files available at http://www.dafyomi.org/ and http://www.ou.org/torah/
+# saving the downloaded files would be a good thing for future reference.
 #}
 
 # Not currently used
 
 #function Radio
 #{
+#  need to determine what is the best time to start the radio.
+# lets use 1 hour befor candle lighting time to start.
+# should be changeable in the config file
+
 #rTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed #'s/[()]//g')"
 
-# need to determine what is the best time to start the radio.
 #mpg123 http://216.118.106.247:7000
+#}
+
+# Not currently used
+
+#function Internet_access
+#{
+# In order for this to be truly usefull the script needs to run on a host that can actually restrict internet access.
+
+# we need to shut off internet access prior to candle lighting time.  Say 5 min before.
+#But we want to keep our ability to have online radio from JM-in -the-AM (both the 32k and 128k streams)
+# We also don't want to distroy our local networks functionality.
+
+# iptables -F
+# iptables -A INPUT -p tcp -s 216.118.106.247 --dport 7000 -j ACCEPT
+# iptables -A INPUT -p tcp -s 216.118.106.247 --dport 443 -j ACCEPT
+# restart radio
+# After Havdalah we need to re-establish full internet access
+# /etc/init.d/arno-iptables-firewall restart
 #}
 
 
