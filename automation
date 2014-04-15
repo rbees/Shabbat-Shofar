@@ -1,0 +1,51 @@
+############# Home automation ##################
+
+# we don't have the hardware yet but look at http://www.thehomeautomationstore.com/cm17a.html
+
+#function Indirect_lighting (adjustable values set in config)
+#{
+# at sundown -30 turn on indirect LED lighting
+# at midnight turn off indirect LED lighting
+# at 5:00 am (or prior to alarm ) turn on indirect LED lighting
+# at sunrise + 30 min turn off indirect LED lighting
+#}
+
+#function Chanukkah_Lights
+#{
+# if Yom_Tove == Chanukkah
+#	then test for which day of Chanukkah it is
+#	then turn on menorah_lights in the following sequense at the proper time.
+#	first day Shamish Light then light1
+#	second day Shamish Light then light1 then light2
+#	third day Shamish Light then light1 then light2 then light3
+#	and so on for 8 days
+#}
+
+#function Shabbat_Lights 
+#{
+# if Shabbat 
+#	then turn on Shabbat Lights at candle lighting time.
+#	then turn off Shabbat Lights at sundown
+#}
+
+#function Havdalah_Lights 
+#{
+# at Havdalah turn on ALL lights
+# at Havdalah + 10 min turn off all lights except indirect LED lighting that is normaly on at that time.
+#}
+
+#function other things we may want to do in the future. 
+#{
+# like a servo-valve in the hot water line to turn it off for Shabbat
+# like a power module on the light in the fridge or other automated lights that come on when we open a door.
+#}
+
+#function Power_off_remote_controled_appliances  # like tv's, will undoughtedly require building some custom infared hardware.
+#{
+# but we can put power modules in front of things like sat-dish recivers and cable converters
+#}
+
+#function 
+#{
+#
+#}

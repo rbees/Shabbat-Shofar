@@ -14,6 +14,9 @@
 # The first, for example, served as a warning to the farmers working in the fields outside the city that they must put down their tools and start making their way back home to prepare for Shabbat. 
 # The second Shofar blast alerted the shopkeepers in the city that the time has come to close their stores, and the third indicated the time to light the Shabbat candles. The final Shofar blasts indicated the onset of Shabbat. 
 # The person blowing the Shofar would then put down the Shofar and come down from the rooftop, as Shabbat begun.
+# Tekiah ― one long, straight blast
+# Shevarim ― three medium, wailing sounds
+# Teruah ― 9 quick blasts in short succession
 #
 
 
@@ -93,6 +96,29 @@ parsha="$(hdate -r $day $month $year)"
 
 # Add an audio section to play a recording of the actual reading at a specific time (to be determined) on Shabbat.
 
+# There are .ods (libre office) files in the /data directory now that have the readings.
+# I am sure there are naming inconsistencies in the reading names.
+# There are also separation character inconsistencies between the fields in the files.
+
+# So we do something like this
+
+#check Shabbat reading or Yom Tove reading.
+#	take readings value and find its listing for the whole reading in the csv file
+#	take the value of that listing and grab the audio file and schedule it to run on the Shabbat (time to be determined and set in the config).
+#	take reading's haftarah and find its listing in the csv file
+#	take the value of that listing and grab the audio file and schedule it to run on the Shabbat (time to be determined and set in the config).
+#	take reading's maftir and find its listing in the csv file
+#	take the value of that listing and grab the audio file and schedule it to run on the Shabbat after the afternoon service but before Havdalah (time to be determined and set in the config).
+#	Then schedule the individual aliyah's to be played with a listing of what it is displayed in a terminal/console window.
+#	1 after Havdalah of the previous Shabbat but before bed time
+#	2 on sunday morning (time to be determined and set in the config)
+#	3 on monday morning (time to be determined and set in the config)
+#	4 on tuseday morning (time to be determined and set in the config)
+#	5 on wensday morning (time to be determined and set in the config)
+#	6 on thursday morning (time to be determined and set in the config)
+#	7 on firday morning (time to be determined and set in the config)
+
+
 echo "The Parsha for "$parsha""
 }
 
@@ -104,11 +130,25 @@ echo "The Parsha for "$parsha""
   at "$hTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/havdalah
 }
 
-function Candle_time
+#function Yom_Tove_Havdalah  # hdate does not calculate Yom-Tove start and stop times
+#{
+#  Time="$(hdate -s -L$long -l$lat -z$tz $day $month $year)"
+#  	take sunset time and add 40 min for the time.
+#  echo "Candle lighting time for; "$Time""
+#}
+
+function Candle_time # For Shabbat, will not work for Yom Tove
 {
   Time="$(hdate -c -L$long -l$lat -z$tz $day $month $year)"
   echo "Candle lighting time for; "$Time""
 }
+
+#function Yom_Tove_Candle_time
+#{
+#  Time="$(hdate -s -L$long -l$lat -z$tz $day $month $year)"
+#  	take sunset time and subtract 20 min from for the time.
+#  echo "Candle lighting time for; "$Time""
+#}
 
 function Shofar
 {
@@ -124,7 +164,7 @@ function Shofar
 cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | grep -e '(.' | cut -d " " -f2 | sed 's/[()]//g')"
 at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 
-# working from candleTime
+#  from the current working candleTime
 #cTime="$(hdate -c -L$long -l$lat -z$tz $day $month $year | awk -F"lighting:" '{printf("%s\n",$2)}')"
 #at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 
@@ -132,18 +172,18 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 
 # Not currently used
 
-#function Yom_tove 	# Festival
+#function Yom_Tove 	# Festival
 #{
 ## test date for Yom Tove
 # hdate -h -L$long -l$lat -z$tz $day $month $year
-# if it is a Yom Tove hdate does not give candle lighting times so we have to generate them ourselves.
-# chech for sundown and set candle lighting and havdalah times
-#hdate -s -l44.786543 -L-85.040193 14 04 2015
-#  then subtract 20 min from sunset and set as candle lighting time
-#  then add 40 min to sunset and set as havdalah
+# if it is a Yom Tove 
+#	then Yom_Tove_Candle_time
+# 	     Torah_reading
+#	     Yom_Tove_Havdalah
+# fi
 #}
 
-# Not currently used
+# Not currently used  SEE Torah_reading
 
 #function Yom_tove_reading
 #{
@@ -180,7 +220,7 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 # something like
 # is `hdate -L$long -l$lat -z$tz $day $month $year` between 16 Nisan and 5 Sivan (49 days)
 # then hdate -o -L$long -l$lat -z$tz $day $month $year
-#	and do thingys specific to count.
+#	and do thingys specific to the count.
 #		like "today is the 13th day of the Omer which makes 1 week and 6 days of the Omer.  Blessed are you HaShem our G0d King of the universe who has commaneded us to count the Omer"
 #}
 
@@ -189,10 +229,10 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 #function Daf-yomi
 #{
 # Daily page a day Talmud reading 7 year cycle.
-# We prablably want to anounce what the reading is first
+# We prablably want to anounce what the reading is first and have it output in a terminal
 # then play an audio recording of the tractate.
-# audio files available at http://www.dafyomi.org/ and http://www.ou.org/torah/
-# saving the downloaded files would be a good thing for future reference.
+# audio files available at http://www.dafyomi.org/ and http://www.ou.org/torah/dafyomi
+# saving the downloaded files would be a good thing for future reference or listening.
 #}
 
 # Not currently used
@@ -227,6 +267,12 @@ at "$cTime" "$month/$day/$year" -f "$HOME"/bin/shabbat/data/shofar
 #}
 
 
+#function 
+#{
+#
+#}
+
+
 ###### Main
 clear
 Set_date
@@ -238,5 +284,5 @@ Set_date
 Havdalah
 Shofar
 #Radio
-
+# cron job to rerun the script for the next week
 
